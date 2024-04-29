@@ -1,8 +1,8 @@
 include? ".slm/stanza.proj"
 pkg-cache: ".slm/pkg-cache"
 
+package z3 defined-in "src/z3.stanza"
 packages z3/* defined-in "src/"
-packages z3/tests/* defined-in "tests/"
 
 package z3/Wrapper requires :
   dynamic-libraries:
@@ -15,10 +15,10 @@ package z3/Wrapper requires :
 
 build main :
   inputs:
-    z3/Context
+    z3
   pkg: ".slm/pkgs"
 
-build-test z3-tests :
+build-test test :
   inputs:
     z3/tests/Context
     z3/tests/Symbols
