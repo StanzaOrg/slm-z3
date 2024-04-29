@@ -1,5 +1,4 @@
 name = "lbstanza-z3"
 version = "0.1.0"
+
 [dependencies]
-libz3.task = { command = "./build_conan.sh" }
-libz3.task.windows = { command = "./build_conan.ps1" }
