@@ -160,17 +160,27 @@ class ConanSlmPackage(ConanFile):
       self.run(f"stanza clean", cwd=self.source_folder, scope="build")
       self.run(f"stanza build {t} -o {d}/{t} -verbose", cwd=self.source_folder, scope="build")
       update_path_cmd=""
-      if platform.system()=="Darwin":
-        # on macos, find all dlls in the current directory recursively, and add their directories to the DYLD_LIBRARY_PATH so that the dlls can be located at runtime
-        # get a unique set of directories that contain dlls under the current directory
+      if platform.system()=="Linux":
+        # on linux, find all so files in the current directory recursively, and add their
+        # directories to the LD_LIBRARY_PATH so that the libs can be located at runtime
+        # get a unique set of directories that contain so files under the current directory
+        so_dirs = {p.resolve().parents[0].as_posix() for p in sorted(Path('.').glob('**/*.so'))}
+        path_str = ':'.join(so_dirs)
+        if path_str:
+          update_path_cmd=f"export LD_LIBRARY_PATH={path_str}:$LD_LIBRARY_PATH ; "
+      elif platform.system()=="Darwin":
+        # on macos, find all dylib files in the current directory recursively, and add their
+        # directories to the DYLD_LIBRARY_PATH so that the libs can be located at runtime
+        # get a unique set of directories that contain dylib files under the current directory
         dylib_dirs = {p.resolve().parents[0].as_posix() for p in sorted(Path('.').glob('**/*.dylib'))}
         path_str = ':'.join(dylib_dirs)
         if path_str:
           update_path_cmd=f"export DYLD_LIBRARY_PATH={path_str}:$DYLD_LIBRARY_PATH ; "
       elif platform.system()=="Windows":
         t="test.exe"
-        # on windows, find all dlls in the current directory recursively, and add their directories to the PATH so that the dlls can be located at runtime
-        # get a unique set of directories that contain dlls under the current directory
+        # on windows, find all dll files in the current directory recursively, and add their
+        # directories to the PATH so that the libs can be located at runtime
+        # get a unique set of directories that contain dll files under the current directory
         dll_win_dirs = {p.resolve().parents[0].as_posix() for p in sorted(Path('.').glob('**/*.dll'))}
         # convert those windows-style paths to bash-style paths
         dll_bash_dirs = [f"/{d[0].lower()}{d[2:]}" for d in dll_win_dirs]

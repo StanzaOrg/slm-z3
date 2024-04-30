@@ -6,7 +6,7 @@ PYTHON ?= python
 CONAN ?= conan
 SED ?= sed
 CONAN_HOME ?= $(shell pwd)/.conan2
-CONAN_OPTS ?= -vtrace
+CONAN_OPTS ?= -vtrace -s:a compiler.cppstd=gnu17
 CONAN_BUILD_PROFILE ?= default
 CONAN_HOST_PROFILE ?= default
 # execute all lines of a target in one shell
