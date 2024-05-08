@@ -1,25 +1,23 @@
 include? ".slm/stanza.proj"
 pkg-cache: ".slm/pkg-cache"
 
+package z3 defined-in "src/z3.stanza"
 packages z3/* defined-in "src/"
-packages z3/tests/* defined-in "tests/"
 
-package z3/Wrapper requires :
-  dynamic-libraries:
-    on-platform:
-      windows: "./build/content/libz3.dll"
-      linux: "./build/content/libz3.so"
-      os-x: "./build/content/libz3.dylib"
-  ccfiles: "./build/content/libz3.a"
-  ccflags: "-I./build/content/include"
+include "stanza-z3.proj"
+
+; This include file will only exist in the git repo at binary package build time.
+; End-user slm packages will not have this include file.
+include? "stanza-library.proj"
 
 build main :
   inputs:
-    z3/Context
+    z3
   pkg: ".slm/pkgs"
 
-build-test z3-tests :
+build-test test :
   inputs:
+    z3
     z3/tests/Context
     z3/tests/Symbols
     z3/tests/Sorts

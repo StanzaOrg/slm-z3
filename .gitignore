@@ -5,6 +5,7 @@ test-pkgs/
 
 venv/
 .conan2/
+.conan2.cache/
 build/
 
 z3full.h

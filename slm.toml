@@ -1,5 +1,13 @@
-name = "lbstanza-z3"
+
+name = "slm-z3"
 version = "0.1.0"
+
 [dependencies]
-libz3.task = { command = "./build_conan.sh" }
-libz3.task.windows = { command = "./build_conan.ps1" }
+
+[dependencies.z3]
+pkg="z3"
+version="4.12.4"
+type="conan"
+options.shared = "True"
+options.multithreaded = "True"
+options.use_gmp = "False"

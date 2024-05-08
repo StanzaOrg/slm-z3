@@ -1,48 +1,72 @@
+
+# this makefile uses bash commands
+SHELL := /bin/bash
+# inherit these variables from the environment, with defaults if unspecified in the environment
+PYTHON ?= python
+CONAN ?= conan
+SED ?= sed
+CONAN_HOME ?= $(shell pwd)/.conan2
+CONAN_OPTS ?= -vtrace -s:a compiler.cppstd=gnu17
+CONAN_BUILD_PROFILE ?= default
+CONAN_HOST_PROFILE ?= default
+# execute all lines of a target in one shell
+.ONESHELL:
+
+.PHONY: all
 all: build
 
-tests: z3-tests
-	./z3-tests
-
-test-%: z3-tests
-	./z3-tests -tagged $(@:test-%=%)
-
+.PHONY: build
 build:
-	stanza build
+	@echo -e "\n*** Makefile: build: creating venv ***"
+	if [ "$$VIRTUAL_ENV" == "" ] ; then
+	    echo "creating python virtual environment in ./venv"
+	    ${PYTHON} -m venv venv
+	    source venv/bin/activate
+	    pip install -r requirements.txt
+	fi
 
-z3-tests: src/*.stanza tests/*.stanza conan-z3-static
-	stanza build z3-tests
+	echo -e "\n*** Makefile: build: configuring conan ***"
+	export CONAN_HOME="${CONAN_HOME}"  # copy from make env to bash env
+	${CONAN} config install conan-config
+	 #${CONAN} remote enable conancenter
+	[ ! -e ".conan2/profiles/default" ] && ${CONAN} profile detect
+	(cd conan_lbstanza_generator && ${CONAN} create .)
 
+	 # get the current project name from the slm.toml file
+	SLMPROJNAME=$$(${SED} -n -e '/^ *name *= *"*\([^"]*\).*/{s//\1/;p;q}' slm.toml)
+	SLMPROJVER=$$(${SED} -n -e '/^ *version *= *"*\([^"]*\).*/{s//\1/;p;q}' slm.toml)
 
-conan-z3-shared:
-	SLM_BUILD_SHARED=1 ./build_conan.sh
+	 # build slm and link to dependency libs using stanza.proj fragments
+	 # build only the current project, not any dependencies
+	echo -e "\n*** Makefile: build: building \"$${SLMPROJNAME}/$${SLMPROJVER}\" ***"
+	${CONAN} create \
+	    -pr:b ${CONAN_BUILD_PROFILE} -pr:h ${CONAN_HOST_PROFILE} \
+	    ${CONAN_OPTS} \
+	    --build "$${SLMPROJNAME}/$${SLMPROJVER}" .
 
-conan-z3-static:
-	SLM_BUILD_STATIC=1 ./build_conan.sh
+.PHONY: upload
+upload:
+	@echo -e "\n*** Makefile: upload: activating venv ***"
+	if [ "$$VIRTUAL_ENV" == "" ] ; then
+	    echo -e "*** Makefile: upload: using python virtual environment in ./venv ***"
+	    source venv/bin/activate
+	fi
 
-.PHONY: conan-z3-shared conan-z3-static
+	echo -e "\n*** Makefile: upload: configuring conan ***"
+	export CONAN_HOME="${CONAN_HOME}"  # copy from make env to bash env
+	${CONAN} remote enable artifactory
+	 # expects user in CONAN_LOGIN_USERNAME_ARTIFACTORY and password in CONAN_PASSWORD_ARTIFACTORY
+	${CONAN} remote login artifactory
 
-# Wrapper Generator Targets
-CONTENT_DIR=./build/content
-LIBC_PKG=pycparser_fake_libc
-PKG_BASE_DIR = $(shell python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")
-PKG_DIR = $(PKG_BASE_DIR)/$(LIBC_PKG)
+	 # get the current project name from the slm.toml file
+	SLMPROJNAME=$$(${SED} -n -e '/^ *name *= *"*\([^"]*\).*/{s//\1/;p;q}' slm.toml)
+	SLMPROJVER=$$(${SED} -n -e '/^ *version *= *"*\([^"]*\).*/{s//\1/;p;q}' slm.toml)
 
-Z3_HEADERS = $(CONTENT_DIR)/include
-PPFLAGS=-std=c99 -I$(PKG_DIR) -I$(Z3_HEADERS)  # -include ./headers/ulong.h
+	echo -e "\n*** Makefile: upload: uploading \"$${SLMPROJNAME}/$${SLMPROJVER}\" ***"
+	${CONAN} upload -r artifactory $${SLMPROJNAME}/$${SLMPROJVER}
 
-HDRS= $(Z3_HEADERS)/z3.h
-
-z3-headers: conan-z3-static
-	gcc -E $(PPFLAGS) -D Z3_API="" $(HDRS) > ./z3full.h
-
-wrapper: z3-headers
-	convert2stanza.py --input z3full.h func-decl --pkg-prefix z3 --output src/Wrapper.stanza --func-form both
-	convert2stanza.py --input z3full.h enums --pkg-prefix z3/Enums --use-defenum --skip memory_order --out-dir src/Enums
-
+.PHONY: clean
 clean:
-	rm -f ./pkgs/*.pkg
-	rm -f ./test-pkgs/*.pkg
-	rm ./z3-tests
-	rm -rf ./build
-
-.phony: clean
+	@CLEANCMD="rm -rf .conan2 .slm build venv"
+	echo $$CLEANCMD && eval $$CLEANCMD
+	[ "x$$VIRTUAL_ENV" != "x" ] && [ ! -e "$$VIRTUAL_ENV" ] && printf "Virtual environment directory has been cleaned.\nRun 'deactivate' to exit from the virtual environment.\n" || true
