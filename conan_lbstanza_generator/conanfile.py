@@ -157,6 +157,9 @@ class LBStanzaGenerator:
                 libfilenames[tp][os] = []
 
         for l, p in libs.items():
+            # z3 conan recipe has lib names with mixed prefixes on windows
+            if l.startswith("lib"):
+                l = l.removeprefix("lib")
             # calculate filenames
             if is_shared_lib:
                 flnx = f"lib{l}.so"
