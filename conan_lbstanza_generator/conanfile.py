@@ -161,8 +161,8 @@ class LBStanzaGenerator:
             if l.startswith("lib"):
                 l = l.removeprefix("lib")
                 # z3 conan puts dll in the bin directory
-                if p.endswith("lib"):
-                    p = p.removesuffix("lib") + "bin"
+                if p.name == "lib":
+                    p = p.parents[0] / "bin"
             # calculate filenames
             if is_shared_lib:
                 flnx = f"lib{l}.so"
