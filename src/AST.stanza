@@ -1,0 +1,11 @@
+defpackage z3/AST:
+  forward z3/AST/AST
+  forward z3/AST/BVOps
+  forward z3/AST/Complex
+  forward z3/AST/Functions
+  forward z3/AST/Numerals
+  forward z3/AST/Operators
+  forward z3/AST/Quantifiers
+  forward z3/AST/Sets
+  forward z3/AST/Vector
+
