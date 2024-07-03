@@ -1,0 +1,12 @@
+defpackage z3/Enums:
+  forward z3/Enums/Z3_ast_kind
+  forward z3/Enums/Z3_ast_print_mode
+  forward z3/Enums/Z3_decl_kind
+  forward z3/Enums/Z3_error_code
+  forward z3/Enums/Z3_goal_prec
+  forward z3/Enums/Z3_lbool
+  forward z3/Enums/Z3_param_kind
+  forward z3/Enums/Z3_parameter_kind
+  forward z3/Enums/Z3_search_failure
+  forward z3/Enums/Z3_sort_kind
+  forward z3/Enums/Z3_symbol_kind

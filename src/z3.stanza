@@ -3,3 +3,41 @@ defpackage z3:
   import collections
 
   forward z3/Context
+
+  ; This is not working yet.
+  ; forward z3/Algebraic
+  forward z3/Constrainable
+  forward z3/DataTypes
+  forward z3/EnumSort
+  forward z3/Errors
+  forward z3/Goals
+  forward z3/ListSort
+  forward z3/Misc
+  forward z3/Model
+  forward z3/Optimize
+  forward z3/Parameters
+  forward z3/Probes
+  forward z3/Shellable
+  forward z3/Solver
+  forward z3/Sorts
+  forward z3/Statistics
+  forward z3/Symbols
+  forward z3/Tactics
+  forward z3/TupleSort
+  forward z3/Utils
+  forward z3/AST
+  forward z3/Enums
+
+
+
+
+
+
+
+
+
+
+
+
+
+

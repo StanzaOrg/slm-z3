@@ -4,6 +4,7 @@ defpackage z3/Goals :
   import z3/Context
   import z3/Utils
   import z3/AST
+  import z3/Enums
 
 public lostanza deftype Goal :
   ctx:ref<Context>
@@ -68,6 +69,6 @@ public lostanza defn serialize-to-string (g:ref<Goal>) -> ref<String> :
   val ret = w_Z3_goal_to_string(g.ctx.value, g.value)
   return String(ret)
 
-public lostanza defn serialize-to-DIMACS-string (g:ref<Goal>) -> ref<String> :
-  val ret = w_Z3_goal_to_dimacs_string(g.ctx.value, g.value)
+public lostanza defn serialize-to-DIMACS-string (g:ref<Goal>, include-names:ref<True|False>) -> ref<String> :
+  val ret = w_Z3_goal_to_dimacs_string(g.ctx.value, g.value, to-byte(include-names))
   return String(ret)
