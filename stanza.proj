@@ -6,10 +6,6 @@ packages z3/* defined-in "src/"
 
 include "stanza-z3.proj"
 
-; This include file will only exist in the git repo at binary package build time.
-; End-user slm packages will not have this include file.
-include? "stanza-library.proj"
-
 build main :
   inputs:
     z3
