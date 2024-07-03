@@ -47,10 +47,43 @@ Vin -> 24.0
 Where R2 = 100k / 3.0 == 33.3k. This creates a voltage divider with an output of 6.0V when there
 is an input of 24V.
 
-# Setup
+# How to use in JITX
 
-This project uses [conan](https://conan.io/) to manage compiling the Z3 library dependency for
-the current platform. To build the Z3 dependencies:
+Add the following to your `slm.toml` file:
+
+```
+[dependencies.slm-z3]
+pkg="slm-z3"
+version="0.1.1"
+type="conan"
+options.shared = "True"
+options.linux.fPIC = "True"
+options.macos.fPIC = "True"
+```
+
+Then run `$SLM clean`. On next build, the dependency will be downloaded and you will be able to `import z3` to use in your project.
+
+# Dev Setup
+
+This project uses [conan](https://conan.io/) to manage compiling the Z3 library dependency for the current platform.
+
+Currently the process is:
+
+1.  Create a venv and install the dependencies
+    1.  `python -m venv venv`
+    2.  `source venv/bin/activate`
+    3.  `pip install -r requirements.txt`
+2.  Run Conan using the `Makefile`
+    1.  `make`
+
+This will construct a conan package that includes the stanza wrappers around Z3
+and will download the `Z3` library dependency when installed with `slm`
+
+NOTE: The unit tests currently cannot be run because the conan package build only provides the shared library versions. This leaves no method to build the tests and run them.
+
+**OLD instructions**
+
+To build the Z3 dependencies:
 
 1.  Setup a compiler on the `$PATH`
     1.  Ubuntu: `sudo apt install build-essential`
