@@ -6,7 +6,7 @@ version = "0.1.1"
 
 [dependencies.z3]
 pkg="z3"
-version="4.12.4"
+version="4.13.0"
 type="conan"
 options.shared = "True"
 options.multithreaded = "True"
