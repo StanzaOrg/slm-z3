@@ -4,8 +4,8 @@ test-pkgs/
 .stanza
 
 venv/
-.conan2/
-.conan2.cache/
+.conan2
+.conan2.cache
 build/
 
 z3full.h
